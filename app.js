@@ -1,146 +1,98 @@
 const fs = require("fs")
 
-const logAppName = '[hashicorp-vault-secrets]';
+const logPlugin = '[hashicorp-vault-secrets]';
 
 const secretsCache = {
     _secrets: {},
-    getSecret(secretName) {
-        return this._secrets[secretName] ?? null;
+    getSecret(secretPath) {
+        return this._secrets[secretPath] ?? null;
     },
-    setSecret(secretName, secretValue) {
-        this._secrets[secretName] = secretValue;
+    setSecret(secretPath, secretValue) {
+        this._secrets[secretPath] = secretValue;
     },
 };
 
-const getKeyVaultSecret3 = async function fetchData (hcToken, hcUrl, hcMount, hcKvVersion, secretName) {
-    let secretValue = '';
+const getGashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion, secretPath) {
+    let secretValue;
+    let responseStatus = 0;
+    const notAvailable = '[N/A]';
+    const notFound = '[Not found]';
+    const cachePath = hcUrl + "/" + hcKvVersion + secretPath;
+    let urlApi= notAvailable;
+    
     try {
+
+        secretValue = secretsCache.getSecret(cachePath);
+        if (secretValue !== null) {
+            console.log(logPlugin, `read secret from the cache with the cache_path='${cachePath}'`);
+            return secretValue;
+        }
+        secretValue = notAvailable;
         const axios = require('axios');
-        const urlApi = `${hcUrl}/v1/${hcMount}/data/${secretName}`;
-        console.log(logAppName, 'urlApi:', urlApi);
+        const https = require('https');
+        axios.defaults.httpsAgent = new https.Agent({  
+            rejectUnauthorized: false
+          });          
+        
+        let dataPath = '';
+        if (hcKvVersion == '2' ){
+          dataPath = '/data'
+        }
+        const splitSecretPath = secretPath.split('/');
+        if (splitSecretPath.length != 4 || 
+           (splitSecretPath[1] != null && splitSecretPath[1].length == 0) ||
+           (splitSecretPath[2] != null && splitSecretPath[2].length == 0) ||
+           (splitSecretPath[3] != null && splitSecretPath[3].length == 0)) {
+          throw new Error(`The secretPath '${secretPath}' is not valid. The syntax is: /mount/secret/jsonName`);
+        }
+        urlApi = `${hcUrl}/v1/${splitSecretPath[1]}${dataPath}/${splitSecretPath[2]}`;
         // Set custom headers
         const config = {
             headers: {
               'X-Vault-Token': hcToken
             }
           };          
-          
+        console.log(logPlugin, `HashiCorp URL=${urlApi} - REQUEST`)
         const response = await axios.get(urlApi, config);
-        console.log(logAppName, 'Response Data:', response.data);
-        secretValue = response.data.data.data.client_id;
-        console.log(logAppName, `secretValue=${secretValue}`);
+        responseStatus = response.status;
+        console.log(logPlugin, 'Response Data:', response.data);
+        if (hcKvVersion.toString() == '2' && 
+            response.hasOwnProperty('data') &&
+            response.data.hasOwnProperty('data') &&
+            response.data.data.hasOwnProperty('data') &&
+            response.data.data.data.hasOwnProperty(splitSecretPath[3]) ){
+          secretValue = response.data.data.data[splitSecretPath[3]];
+        }
+        else if (hcKvVersion.toString() == '1' &&
+                response.hasOwnProperty('data') &&
+                response.data.hasOwnProperty('data') &&
+                response.data.data.hasOwnProperty(splitSecretPath[3]) ){
+          secretValue = response.data.data[splitSecretPath[3]];
+        }
+        else {
+          secretValue = notFound;
+        }
+        console.log(logPlugin, `secretValue=${secretValue}`);
 
     } catch (error) {
-        console.error(logAppName, 'Error:', error);
+        console.error(logPlugin, 'Error:', error);
+        if (error.hasOwnProperty('response') &&
+            error.response.hasOwnProperty('status')){
+            responseStatus = error.response.status;
+            if (error.response.status == 404) {
+                secretValue = notFound;
+            }         
+        }
+    }
+    console.log(logPlugin, `HashiCorp URL=${urlApi} - RESPONSE status=${responseStatus}`);
+
+    // If the sceret is retrieved correctly
+    if (secretValue != notAvailable && secretValue != notFound ) {
+        console.log(logPlugin, `write secret to the cache with the cache_path='${cachePath}'`);
+        secretsCache.setSecret(cachePath, secretValue);
     }
     return secretValue;
 }
-
-const getKeyVaultSecret2 = async function fetchData(hcToken, hcUrl, hcMount, hcKvVersion, secretName) {
-    const cacheSecretName = `${hcMount}${secretName}`;
-    const cachedSecretValue = secretsCache.getSecret(cacheSecretName);
-    let secretValue = "";
-
-    return new Promise((resolve, reject) => {
-        let httpTans;
-        const options = {
-            headers: {
-              'X-Vault-Token': hcToken
-            }
-          };          
-        const urlApi = `${hcUrl}/v1/${hcMount}/data/${secretName}`;
-        
-        if (hcUrl.indexOf ("https://") == 0) {
-            httpTans = require('https');
-        }
-        else if (hcUrl.indexOf ("http://") == 0) {
-            httpTans = require('http');
-        }
-        else {
-            console.error(logAppName, `failed to read secret ${secretName} from ${url}: ${error}`);
-            return;
-        }
-        httpTans.get(urlApi, options, (res) => {
-        let data = '';
-  
-        // Receive chunks of data
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-  
-        // When the response ends, resolve the promise with the response data
-        res.on('end', () => {
-            resolve(data);
-            /*const jsonObject = JSON.parse(data)
-            console.log(logAppName, `HTTP code=${resp.statusCode} ${data}`);
-            secretValue = jsonObject.data.data.client_id;
-            console.log(logAppName, `secretValue=${secretValue}`);*/
-        });
-      }).on('error', (err) => {
-        reject(err);
-      });
-    });
-  }
-
-const getKeyVaultSecret = async function (hcToken, hcUrl, hcMount, hcKvVersion, secretName) {
-    const cacheSecretName = `${hcMount}${secretName}`;
-    const cachedSecretValue = secretsCache.getSecret(cacheSecretName);
-    let secretValue = "";
-
-    /*if (cachedSecretValue !== null) {
-        console.log(logAppName, `read secret ${secretName} from cache`);
-        return cachedSecretValue;
-    }*/
-
-
-
-    try {
-        let httpTans;
-        if (hcUrl.indexOf ("https://") == 0) {
-            httpTans = require('https');
-        }
-        else if (hcUrl.indexOf ("http://") == 0) {
-            httpTans = require('http');
-        }
-        else {
-            console.error(logAppName, `failed to read secret ${secretName} from ${url}: ${error}`);
-            return;
-        }
-
-        const options = {
-            headers: {
-              'X-Vault-Token': hcToken
-            }
-          };          
-        const urlApi = `${hcUrl}/v1/${hcMount}/data/${secretName}`;
-        httpTans.get(urlApi, options, (resp) => {
-            let data = '';
-          
-            // Un morceau de réponse est reçu
-            resp.on('data', (chunk) => {
-              data += chunk;
-            });
-          
-            // La réponse complète à été reçue. On affiche le résultat.
-            resp.on('end', () => {
-              const jsonObject = JSON.parse(data)
-              console.log(logAppName, `HTTP code=${resp.statusCode} ${data}`);
-              secretValue = jsonObject.data.data.client_id;
-              console.log(logAppName, `secretValue=${secretValue}`);
-            });
-          
-          }).on("error", (err) => {
-            console.log("Error: " + err.message);
-          });
-        console.log(logAppName, `read secret '${secretName}' from '${urlApi}'`);
-        
-        //secretsCache.setSecret(cacheSecretName, secretValue);
-        return secretValue;
-    } catch (error) {
-        console.error(logAppName, `failed to read secret ${secretName} from ${hcUrl}: ${error}`);
-        return null;
-    }
-};
 
 const secretTag = {
     name: 'hashiCorpSecret',
@@ -148,41 +100,39 @@ const secretTag = {
     liveDisplayName: (args) => {
         return `Secret => ${args[0].value}`;
     },
-    description: 'Retrieve an HashiCorp Vault KV Secret by name',
+    description: 'Retrieve a KV Secret by path',
     args: [{
         displayName: 'KV Secret Name',
-        description: 'The name of the KV secret',
+        description: 'The the KV secret path',
         type: 'string',
         defaultValue: ''
     }],
-    async run(context, secretName) {
+    async run(context, secretPath) {
 
+        const confError = '[Plugin configuration Error]'
         const hcToken = await context.context.HASHICORP_TOKEN;
         const hcUrl = await context.context.HASHICORP_URL;
-        const hcMount = await context.context.HASHICORP_MOUNT;
         const hcKvVersion = await context.context.HASHICORP_KV_VERSION;
         
         if (typeof hcToken === 'undefined') {
-            console.error(logAppName, 'missing HASHICORP_TOKEN environment variable');
-            return '';
+            console.error(logPlugin, 'missing HASHICORP_TOKEN environment variable');
+            return confError;
         }
-
-        if (typeof hcMount === 'undefined') {
-            console.error(logAppName, 'missing HASHICORP_MOUNT environment variable');
-            return '';
+        if (typeof hcUrl === 'undefined') {
+            console.error(logPlugin, 'missing HASHICORP_URL environment variable');
+            return confError;
         }
-
         if (typeof hcKvVersion === 'undefined') {
-            console.error(logAppName, 'missing HASHICORP_VERSION environment variable');
-            return '';
+            console.error(logPlugin, 'missing HASHICORP_KV_VERSION environment variable');
+            return confError;
         }
-        else if (hcKvVersion != '2') {
-            console.error(logAppName, 'HASHICORP_VERSION should be 2');
-            return '';
+        else if (hcKvVersion.toString() != '1' && hcKvVersion != '2') {
+            console.error(logPlugin, "HASHICORP_KV_VERSION must be 1 or 2");
+            return confError;
         }
-
-        //const secretValue = "jeromeg";
-        const secretValue = getKeyVaultSecret3(hcToken, hcUrl, hcMount, hcKvVersion, secretName);
+        console.log("**jerome typeof hcKvVersion=" + typeof hcKvVersion)
+        console.log("**jerome hcKvVersion=" + hcKvVersion)
+        const secretValue = getGashiCorpSecret(hcToken, hcUrl, hcKvVersion, secretPath);
 
         return secretValue;
     }
