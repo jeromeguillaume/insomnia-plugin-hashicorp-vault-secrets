@@ -1,11 +1,14 @@
 {
   "name": "insomnia-plugin-hashicorp-vault-secrets",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "app.js",
   "insomnia": {
     "name": "HashiCorp Vault",
     "displayName": "HashiCorp Vault Plugin",
     "description": "The HashiCorp Vault plugin fetches the KV secret from HashiCorp Vault",
+    "images": {
+      "icon": "./assets/Vault_PrimaryLogo_Black.png"
+    },
     "publisher": {
       "name": "Jerome GUILLAUME",
       "icon": "https://avatars.githubusercontent.com/u/4004310?v=4"
@@ -20,7 +23,8 @@
     "insomnia",
     "plugin",
     "hashicorp",
-    "vault"
+    "vault",
+    "secret"
   ],
   "description": "The HashiCorp Vault plugin fetches the KV secret from HashiCorp Vault",
   "scripts": {

@@ -1,5 +1,7 @@
-# Notes
+# Other
 notes.txt
+kong-ca-cert.crt
+kong-default.crt
 
 # Logs
 logs

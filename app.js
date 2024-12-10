@@ -1,5 +1,3 @@
-const fs = require("fs")
-
 const logPlugin = '[hashicorp-vault-secrets]';
 
 const secretsCache = {
@@ -12,7 +10,7 @@ const secretsCache = {
     },
 };
 
-const getGashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion, secretPath) {
+const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion, secretPath) {
     let secretValue;
     let responseStatus = 0;
     const notAvailable = '[N/A]';
@@ -30,10 +28,7 @@ const getGashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         secretValue = notAvailable;
         const axios = require('axios');
         const https = require('https');
-        axios.defaults.httpsAgent = new https.Agent({  
-            rejectUnauthorized: false
-          });          
-        
+
         let dataPath = '';
         if (hcKvVersion == '2' ){
           dataPath = '/data'
@@ -45,15 +40,16 @@ const getGashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
            (splitSecretPath[3] != null && splitSecretPath[3].length == 0)) {
           throw new Error(`The secretPath '${secretPath}' is not valid. The syntax is: /mount/secret/jsonName`);
         }
+        
         urlApi = `${hcUrl}/v1/${splitSecretPath[1]}${dataPath}/${splitSecretPath[2]}`;
-        // Set custom headers
-        const config = {
+        
+        const axiosInstance = axios.create({
             headers: {
               'X-Vault-Token': hcToken
-            }
-          };          
-        console.log(logPlugin, `HashiCorp URL=${urlApi} - REQUEST`)
-        const response = await axios.get(urlApi, config);
+            },
+          }); 
+        
+        const response = await axiosInstance.get(urlApi);
         responseStatus = response.status;
         console.log(logPlugin, 'Response Data:', response.data);
         if (hcKvVersion.toString() == '2' && 
@@ -75,13 +71,23 @@ const getGashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         console.log(logPlugin, `secretValue=${secretValue}`);
 
     } catch (error) {
-        console.error(logPlugin, 'Error:', error);
-        if (error.hasOwnProperty('response') &&
-            error.response.hasOwnProperty('status')){
-            responseStatus = error.response.status;
-            if (error.response.status == 404) {
-                secretValue = notFound;
-            }         
+        if (error.response) {
+            console.error(logPlugin, 'Error:', error);
+            if (error.hasOwnProperty('response') &&
+                error.response.hasOwnProperty('status')){
+                responseStatus = error.response.status;
+                if (error.response.status == 404) {
+                    secretValue = notFound;
+                }         
+            }
+        }
+        else if (error.request) {
+            // The request was made but no response was received
+            console.error(logPlugin, 'No response received:', error.request);
+        }
+        else {
+            // Something happened in setting up the request that triggered an Error
+            console.error(logPlugin, 'Error:', error.message);
         }
     }
     console.log(logPlugin, `HashiCorp URL=${urlApi} - RESPONSE status=${responseStatus}`);
@@ -130,9 +136,7 @@ const secretTag = {
             console.error(logPlugin, "HASHICORP_KV_VERSION must be 1 or 2");
             return confError;
         }
-        console.log("**jerome typeof hcKvVersion=" + typeof hcKvVersion)
-        console.log("**jerome hcKvVersion=" + hcKvVersion)
-        const secretValue = getGashiCorpSecret(hcToken, hcUrl, hcKvVersion, secretPath);
+        const secretValue = getHashiCorpSecret(hcToken, hcUrl, hcKvVersion, secretPath);
 
         return secretValue;
     }
