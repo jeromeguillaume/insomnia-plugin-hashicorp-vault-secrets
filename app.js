@@ -51,7 +51,7 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         
         const response = await axiosInstance.get(urlApi);
         responseStatus = response.status;
-        console.log(logPlugin, 'Response Data:', response.data);
+        //console.log(logPlugin, 'Response Data:', response.data);
         if (hcKvVersion.toString() == '2' && 
             response.hasOwnProperty('data') &&
             response.data.hasOwnProperty('data') &&
@@ -68,7 +68,7 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         else {
           secretValue = notFound;
         }
-        console.log(logPlugin, `secretValue=${secretValue}`);
+        //console.log(logPlugin, `secretValue=${secretValue}`);
 
     } catch (error) {
         if (error.response) {
