@@ -11,7 +11,7 @@ You can install it directly from the Insomnia [Plugin Hub](https://insomnia.rest
 Go to `Application -> Preferences -> Plugins` and enter `insomnia-plugin-hashicorp-vault-secrets` in the `npm package name` field and click on the button `Install Plugin`.
 
 This will download and install the plugin. After installation, you will see the plugin in the list of installed plugins
-and the action "Run All Requests" will be available in the context menu of a folder, no restart required.
+and the action "HashiCorp Vault Secrets" will be available in the context menu of a folder, no restart required.
 
 ![Insomnia Preferences](/assets/Insomnia-prefrences.png)
 
@@ -24,7 +24,7 @@ Add the following environment variables in Insomnia (see [here](https://docs.ins
   "HASHICORP_TOKEN": "** TO_BE_REPLACED **"
 }
 ```
-In HashiCorp: create a KV secret (or mount), a secret and a JSON
+In HashiCorp: create a KV secret (or mount), a secret and a JSON.
 
 For instance: 
 - KV secret (or mount): `keycloak_v2`
@@ -42,8 +42,13 @@ Hit Ctrl + Space in any place where an environment variable is available and pic
 ![Insomnia Ctrl + Space](/assets/Insomnia_ctrl_space.png)
 
 Set in KV Secret Name a path to the Vault Secret. The syntax is `/mount/secret/jsonName`
-For instance: `/keycloak_v2/dev/client_id`
+For instance: `/keycloak_v2/dev/client_id`. The `client2` value is retrieved from HashiCorp Vault
 ![Insomnia Edit Tag](/assets/Insomnia_Edit_Tag.png)
 
 Repeat the same action for the client_secret (with `/keycloak_v2/dev/client_secret` path)
 ![Insomnia All Secrets](/assets/Insomnia_with_all_secrets.png)
+
+## How to Debug
+1) Open the Log folders (Insomnia Menu: Help -> Show App Log Folders)
+2) Open the file: `renderer.log`
+3) See log with `[hashicorp-vault-secrets]`
