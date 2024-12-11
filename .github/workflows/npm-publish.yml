@@ -29,10 +29,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - name: Authenticate to npm
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-      - name: Content .npmrc
-        run: cat ~/.npmrc
       - name: NPM_TOKEN
         run: echo ${{ env.NPM_TOKEN }} 
       - name: Install dependencies
