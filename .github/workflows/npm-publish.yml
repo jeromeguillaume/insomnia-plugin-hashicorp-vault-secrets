@@ -9,19 +9,10 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    environment: prod    
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - run: npm ci
-
   publish-npm:
     needs: build
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -32,6 +23,8 @@ jobs:
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Content .npmrc
         run: cat ~/.npmrc
+      - name: NPM_TOKEN
+        run: echo ${{ env.NPM_TOKEN }} 
       - name: Install dependencies
         run: npm ci
       - name: Publish package
