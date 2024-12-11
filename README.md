@@ -21,7 +21,10 @@ Go to `Application -> Preferences -> Plugins` and enter `insomnia-plugin-hashico
 This will download and install the plugin. After installation, you will see the plugin in the list of installed plugins
 and the action "HashiCorp Vault Secrets" will be available in the context menu of a folder, no restart required.
 
-![Insomnia Preferences](assets/Insomnia-prefrences.png)
+<div align="center">
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia-prefrences.png" alt="Insomnia Preferences"/>
+</div>
+
 
 ## How to Use
 Add the following environment variables in Insomnia (see [here](https://docs.insomnia.rest/insomnia/environment-variables#environment-basics)). Adapt the values regarding your HashiCorp environment and select the right release of KV secrets engine ('1' or '2' see [here](https://developer.hashicorp.com/vault/docs/secrets/kv)).
@@ -44,17 +47,28 @@ For instance:
   "client_secret": "$my_secret!"
 }
 ```
-![Vault KV 2](assets/Vault_KV2.png)
+<div align="center">
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Vault_KV2.png" alt="Vault KV 2"/>
+</div>
+
 
 Press Ctrl + Space in any place where an environment variable is available and pick HashiCorp Vault Secret
-![Insomnia Ctrl + Space](assets/Insomnia_ctrl_space.png)
+<div align="center">
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_ctrl_space.png" alt="Insomnia Ctrl + Space"/>
+</div>
+
 
 Set in KV Secret Name a path to the Vault Secret. The syntax is `/mount/secret/jsonName`
 For instance: `/keycloak_v2/dev/client_id`. The `client2` value is retrieved from HashiCorp Vault
-![Insomnia Edit Tag](assets/Insomnia_Edit_Tag.png)
+<div align="center">
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_Edit_Tag.png" alt="Insomnia Edit Tag"/>
+</div>
 
 Repeat the same action for the client_secret (with `/keycloak_v2/dev/client_secret` path)
-![Insomnia All Secrets](assets/Insomnia_with_all_secrets.png)
+<div align="center">
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_with_all_secrets.png" alt="Insomnia All Secrets"/>
+</div>
+
 
 ## How to Debug
 1) Open the Log folders (Insomnia Menu: Help -> Show App Log Folders)
