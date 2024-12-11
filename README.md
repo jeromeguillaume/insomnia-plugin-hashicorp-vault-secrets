@@ -1,9 +1,8 @@
 # HashiCorp Vault Secrets for Insomnia plugin
 
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Vault_PrimaryLogo_Black.png" alt="Vault"/>
+  <img src="assets/Vault_PrimaryLogo_Black.png" alt="Vault"/>
 </div>
-
 
 ## About
 This plugin retrieves the KV secret values from HashiCorp Vault. KV secrets engine v1 and v2 are supported. Once the value has been retrieved from HashiCorp, the plugin puts it in a cache. Please restart Insomnia for refreshing the values.
@@ -22,7 +21,7 @@ This will download and install the plugin. After installation, you will see the 
 and the action "HashiCorp Vault Secrets" will be available in the context menu of a folder, no restart required.
 
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia-prefrences.png" alt="Insomnia Preferences"/>
+  <img src="assets/Insomnia-prefrences.png" alt="Insomnia Preferences"/>
 </div>
 
 
@@ -48,25 +47,25 @@ For instance:
 }
 ```
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Vault_KV2.png" alt="Vault KV 2"/>
+  <img src="assets/Vault_KV2.png" alt="Vault KV 2"/>
 </div>
 
 
 Press Ctrl + Space in any place where an environment variable is available and pick HashiCorp Vault Secret
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_ctrl_space.png" alt="Insomnia Ctrl + Space"/>
+  <img src="assets/Insomnia_ctrl_space.png" alt="Insomnia Ctrl + Space"/>
 </div>
 
 
 Set in KV Secret Name a path to the Vault Secret. The syntax is `/mount/secret/jsonName`
 For instance: `/keycloak_v2/dev/client_id`. The `client2` value is retrieved from HashiCorp Vault
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_Edit_Tag.png" alt="Insomnia Edit Tag"/>
+  <img src="assets/Insomnia_Edit_Tag.png" alt="Insomnia Edit Tag"/>
 </div>
 
 Repeat the same action for the client_secret (with `/keycloak_v2/dev/client_secret` path)
 <div align="center">
-  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/blob/main/assets/Insomnia_with_all_secrets.png" alt="Insomnia All Secrets"/>
+  <img src="assets/Insomnia_with_all_secrets.png" alt="Insomnia All Secrets"/>
 </div>
 
 
