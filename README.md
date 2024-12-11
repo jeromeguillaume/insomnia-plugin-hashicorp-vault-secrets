@@ -1,6 +1,9 @@
 # HashiCorp Vault Secrets for Insomnia plugin
 
-![Vault](assets/Vault_PrimaryLogo_Black.png)
+<div align="center">
+  <img src="assets/Vault_PrimaryLogo_Black.png" alt="Vault"/>
+</div>
+
 
 ## About
 This plugin retrieves the KV secret values from HashiCorp Vault. KV secrets engine v1 and v2 are supported. Once the value has been retrieved from HashiCorp, the plugin puts it in a cache. Please restart Insomnia for refreshing the values.
