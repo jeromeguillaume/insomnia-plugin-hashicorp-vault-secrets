@@ -3,6 +3,7 @@ notes.txt
 kong-ca-cert.crt
 kong-default.crt
 .npmrc
+.npmrc-MODEL
 
 # Logs
 logs
