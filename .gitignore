@@ -2,6 +2,7 @@
 notes.txt
 kong-ca-cert.crt
 kong-default.crt
+.npmrc
 
 # Logs
 logs
