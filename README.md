@@ -1,8 +1,7 @@
 # HashiCorp Vault Secrets for Insomnia plugin
 
 <div align="center">
-  <img src="
-  https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/raw/refs/heads/main/assets/Vault_PrimaryLogo_Black.png" alt="Vault"/>
+  <img src="https://github.com/jeromeguillaume/insomnia-plugin-hashicorp-vault-secrets/raw/refs/heads/main/assets/Vault_PrimaryLogo_Black.png" alt="Vault"/>
 </div>
 
 ## About
