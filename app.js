@@ -33,15 +33,17 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         if (hcKvVersion == '2' ){
           dataPath = '/data'
         }
-        const splitSecretPath = secretPath.split('/');
-        if (splitSecretPath.length != 4 || 
-           (splitSecretPath[1] != null && splitSecretPath[1].length == 0) ||
-           (splitSecretPath[2] != null && splitSecretPath[2].length == 0) ||
-           (splitSecretPath[3] != null && splitSecretPath[3].length == 0)) {
-          throw new Error(`The secretPath '${secretPath}' is not valid. The syntax is: /mount/secret/jsonName`);
+        const splitSecretPath = secretPath.split('/').filter(Boolean)
+        if (splitSecretPath.length < 3) {
+            secretValue = '[Invalid "KV Secret Name". The syntax is: "/{mount_name}/{path}/{key}" ]'
+            throw new Error(`The secretPath '${str}' is not valid. The syntax is: /{mount_name}/{path}/{key}`)
         }
+        const mount = splitSecretPath[0]
+        const path = splitSecretPath.slice(1, -1).join('/')
+        const key = splitSecretPath[splitSecretPath.length - 1]
         
-        urlApi = `${hcUrl}/v1/${splitSecretPath[1]}${dataPath}/${splitSecretPath[2]}`;
+        urlApi = `${hcUrl}/v1/${mount}${dataPath}/${path}`
+        // console.log(logPlugin, `urlApi=${urlApi}`)
         
         const axiosInstance = axios.create({
             headers: {
@@ -51,19 +53,19 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
         
         const response = await axiosInstance.get(urlApi);
         responseStatus = response.status;
-        //console.log(logPlugin, 'Response Data:', response.data);
+        // console.log(logPlugin, 'Response Data:', response.data);
         if (hcKvVersion.toString() == '2' && 
             response.hasOwnProperty('data') &&
             response.data.hasOwnProperty('data') &&
             response.data.data.hasOwnProperty('data') &&
-            response.data.data.data.hasOwnProperty(splitSecretPath[3]) ){
-          secretValue = response.data.data.data[splitSecretPath[3]];
+            response.data.data.data.hasOwnProperty(key) ){
+          secretValue = response.data.data.data[key];
         }
         else if (hcKvVersion.toString() == '1' &&
                 response.hasOwnProperty('data') &&
                 response.data.hasOwnProperty('data') &&
-                response.data.data.hasOwnProperty(splitSecretPath[3]) ){
-          secretValue = response.data.data[splitSecretPath[3]];
+                response.data.data.hasOwnProperty(key) ){
+          secretValue = response.data.data[key];
         }
         else {
           secretValue = notFound;
@@ -78,7 +80,9 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
                 responseStatus = error.response.status;
                 if (error.response.status == 404) {
                     secretValue = notFound;
-                }         
+                } else if (error.response.status == 403) {
+                    secretValue = "[Vault token is expired or not authorized to access the secret]";
+                }
             }
         }
         else if (error.request) {
