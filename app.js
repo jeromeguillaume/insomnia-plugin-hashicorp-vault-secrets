@@ -81,7 +81,7 @@ const getHashiCorpSecret = async function fetchData (hcToken, hcUrl, hcKvVersion
                 if (error.response.status == 404) {
                     secretValue = notFound;
                 } else if (error.response.status == 403) {
-                    secretValue = "[Vault token is expired or not authorized to access the secret]";
+                    throw new Error(`Vault token is expired or not authorized to access the secret`);
                 }
             }
         }
