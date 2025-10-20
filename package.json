@@ -1,6 +1,6 @@
 {
   "name": "insomnia-plugin-hashicorp-vault-secrets",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "main": "app.js",
   "insomnia": {
     "name": "HashiCorp Vault",
